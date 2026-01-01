@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Seni Rupa - Mengenal Bidang</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Chewy&family=Nunito:wght@700&display=swap" rel="stylesheet">
 
     <style>
         /* 1. Chewy (Untuk Judul) */
@@ -52,8 +55,8 @@
         }
 
         #game-container {
-            width: 100%;
-            aspect-ratio: 16 / 9;
+            width: 1920px; 
+            height: 1080px;
             background: url('assets/Background Cover.png') no-repeat center center;
             background-size: 100% 100%;
             position: relative;
@@ -1622,7 +1625,7 @@
                     </p>
                 </div>
                 
-                <div id="btn-next-wordsearch" class="hidden" style= position: relative; z-index: 55;">
+                <div id="btn-next-wordsearch" class="hidden" style= position:relative; z-index: 55;>
                     <button class="btn-next-soal" onclick="nextAsesmenStep(3)">LANJUT KE KUIS ▶</button>
                 </div>
                 <button class="btn-next" style="position: absolute; bottom: 50px; left: 50px;" onclick="nextAsesmenStep(1)">⬅</button>
@@ -1830,6 +1833,111 @@
         }
         createDecorations();
 
+        /* =========================================
+        TOUCH SUPPORT (DIPERBAIKI DENGAN SKALA)
+        ========================================= */
+
+        function initTouchDrag() {
+            const draggables = document.querySelectorAll('.draggable-item');
+            let startX, startY;
+            let draggedEl = null;
+
+            draggables.forEach(el => {
+                el.addEventListener('touchstart', handleTouchStart, {passive: false});
+                el.addEventListener('touchmove', handleTouchMove, {passive: false});
+                el.addEventListener('touchend', handleTouchEnd);
+            });
+
+            function handleTouchStart(e) {
+                e.preventDefault();
+                draggedEl = e.target;
+                
+                const touch = e.touches[0];
+                startX = touch.clientX;
+                startY = touch.clientY;
+                
+                draggedEl.style.zIndex = 1000;
+                // Hapus scale(1.2) di sini jika ingin gerakan lebih akurat, 
+                // atau biarkan untuk efek visual "diangkat".
+                draggedEl.style.transform = 'scale(1.2)'; 
+                draggedEl.style.opacity = '0.8';
+            }
+
+            function handleTouchMove(e) {
+                if (!draggedEl) return;
+                e.preventDefault();
+                
+                const touch = e.touches[0];
+                
+                // --- PERBAIKAN UTAMA DI SINI ---
+                
+                // 1. Ambil elemen wadah utama
+                const container = document.getElementById('game-container');
+                
+                // 2. Hitung SKALA saat ini (Lebar Tampil di Layar / Lebar Asli 1920)
+                // Ini akan mendapatkan angka misal 0.5 jika layar tablet setengah dari 1920px
+                const currentScale = container.getBoundingClientRect().width / 1920; 
+
+                // 3. Hitung Jarak Geser (Delta)
+                // Rumus: Jarak Jari dibagi Skala = Jarak Game
+                const dx = (touch.clientX - startX) / currentScale;
+                const dy = (touch.clientY - startY) / currentScale;
+
+                // 4. Terapkan
+                draggedEl.style.transform = `translate(${dx}px, ${dy}px) scale(1.2)`;
+            }
+
+            function handleTouchEnd(e) {
+                if (!draggedEl) return;
+                
+                // Sembunyikan sebentar untuk melihat apa yang ada di bawahnya
+                draggedEl.style.display = 'none';
+                const touch = e.changedTouches[0];
+                const elemBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+                draggedEl.style.display = 'block';
+
+                const dropZone = elemBelow ? elemBelow.closest('.drop-zone') : null;
+
+                if (dropZone) {
+                    const targetType = dropZone.dataset.target; 
+                    const itemType = draggedEl.dataset.type;    
+
+                    if (targetType === itemType) {
+                        // BENAR
+                        dropZone.appendChild(draggedEl);
+                        placedItems++; // Pastikan variabel placedItems ada di scope global
+                        
+                        // Reset Style
+                        draggedEl.style.transform = 'none';
+                        draggedEl.style.zIndex = '';
+                        draggedEl.style.opacity = '1';
+                        
+                        if (placedItems >= 6) {
+                            const winMsg = document.getElementById('win-message');
+                            if(winMsg) winMsg.classList.remove('hidden');
+                        }
+                    } else {
+                        // SALAH
+                        alert("Kurang tepat!");
+                        resetPosition(draggedEl);
+                    }
+                } else {
+                    // TIDAK KENA ZONA
+                    resetPosition(draggedEl);
+                }
+
+                draggedEl = null;
+            }
+
+            function resetPosition(el) {
+                el.style.transition = "transform 0.3s";
+                el.style.transform = "translate(0px, 0px)";
+                el.style.zIndex = '';
+                el.style.opacity = '1';
+                setTimeout(() => { el.style.transition = ""; }, 300);
+            }
+        }
+
         // 3. PAGE SWITCHING LOGIC (UPDATE: AUTO RESET ASESMEN)
         function switchPage(pageName) {
             const footer = document.querySelector('.footer-info');
@@ -1898,7 +2006,7 @@
             } else if (pageName === 'game-drag') {
                 pages.gameDrag.classList.remove('hidden');
                 container.style.background = "url('assets/backgrounddraganddrop.png') no-repeat center center / 100% 100%";
-                resetGame();
+                resetGame();initTouchDrag();
 
             } else if (pageName === 'game-rain') {
                 pages.gameRain.classList.remove('hidden');
