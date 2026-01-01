@@ -1788,32 +1788,39 @@
     </div>
 
     <script>
-        // 1. AUTO SCALE
+                // Pastikan angka ini SAMA PERSIS dengan width/height di CSS #game-container
+        const targetWidth = 1920;
+        const targetHeight = 1080;
+
         function scaleContainer() {
             const container = document.getElementById('game-container');
+            
+            // 1. Ambil ukuran layar pelayar (browser) saat ini
             const windowWidth = window.innerWidth;
             const windowHeight = window.innerHeight;
-            
-            const targetWidth = 1920;
-            const targetHeight = 1080;
 
-            // Hitung skala berdasarkan sisi mana yang lebih "sempit"
+            // 2. Hitung skala (Zoom Level)
+            // Rumus: Bandingkan lebar layar vs lebar asli, dan tinggi layar vs tinggi asli.
+            // Ambil yang paling kecil agar seluruh konten muat (Fit to Screen)
             const scale = Math.min(windowWidth / targetWidth, windowHeight / targetHeight);
 
-            // Terapkan Transform
+            // 3. Terapkan Scaling
+            // Penting: Kita set lebar/tinggi container agar 'pas' secara visual,
+            // tapi konten di dalamnya tetap mengacu pada koordinat 1920x1080.
             container.style.transform = `scale(${scale})`;
             
-            // Paksa ukuran
-            container.style.width = targetWidth + "px";
-            container.style.height = targetHeight + "px";
+            // PENTING: Pastikan container tetap di tengah saat di-zoom out
+            // (Ini bekerja berpasangan dengan CSS display:flex di body)
+            container.style.transformOrigin = 'center center'; 
         }
 
+        // Event Listeners
         window.addEventListener('load', scaleContainer);
         window.addEventListener('resize', scaleContainer);
         window.addEventListener('orientationchange', function() {
+            // Beri jeda sedikit agar browser selesai memutar layar sebelum kita hitung ulang
             setTimeout(scaleContainer, 200);
         });
-
         // 2. DECORATION
         function createDecorations() {
             const layer = document.getElementById('decor-layer');
