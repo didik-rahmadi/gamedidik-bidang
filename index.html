@@ -1062,8 +1062,8 @@
 
         /* Styles Halaman 3: Quiz Scroll */
         .quiz-scroll-container {
-            width: 80%; 
-            height: 30vh;
+            width: 60%; 
+            height: 42rem;
             overflow-y: auto;
             background: rgba(255,255,255,0.5);
             border-radius: 20px;
@@ -1213,6 +1213,28 @@
             box-shadow: 0 10px 0 #1c5980, 0 15px 20px rgba(0,0,0,0.2); /* Bayangan Lantai */
         }
         .btn-menu-end:active { box-shadow: 0 0 0 #1c5980; }
+        /* --- TEKS INSTANSI DI COVER --- */
+        .cover-agency-text {
+            position: absolute;
+            bottom: 30px;  /* Jarak dari bawah layar */
+            right: 50px;   /* Jarak dari kanan layar */
+            
+            text-align: right; /* Rata Kanan */
+            color: rgb(0, 0, 0);      /* Warna Putih */
+            font-family: 'Fredoka', sans-serif; /* Font yang mudah dibaca */
+            font-size: 1.1rem; /* Ukuran kecil */
+            line-height: 1.3;  /* Jarak antar baris */
+            z-index: 50; /* Pastikan di atas background */
+            
+            /* MEMBUAT GARIS BIRU VERTIKAL DI KANAN */
+            border-right: 6px solid #043557; /* Warna Biru Cerah & Ketebalan */
+            padding-right: 20px; /* Jarak antara teks dan garis biru */
+        }
+
+        .cover-agency-text p {
+            margin: 0; /* Hilangkan margin bawaan agar rapat */
+        }
+        
         /* Animations */
         @keyframes sway-gentle { 0%, 100% { transform: rotate(-2deg); } 50% { transform: rotate(1deg); } }
         @keyframes popIn { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
@@ -1226,17 +1248,24 @@
     <div id="game-container">
         <div id="decor-layer"></div>
         
-        <div class="footer-info">
+        <div class="footer-info" style="display: none;">
             <img src="assets/Logo Giat SD.png" alt="Logo Giat SD" class="footer-logo">
             <span>Direktorat SD</span>
         </div>
 
         <div id="view-cover">
             <img src="assets/Anak SD Cover.png" class="hero-image" alt="Siswa SD">
+            
             <div class="content-wrapper">
                 <div class="badge-class">SENI RUPA FASE A</div>
                 <h1 class="main-title">MENGENAL<br><span class="title-part-2">BIDANG</span></h1>
                 <button class="btn-start-cover" onclick="switchPage('menu')">MULAI ▶</button>
+            </div>
+
+            <div class="cover-agency-text">
+                <p><b>Direktorat SD</b></p>
+                <p>Direktorat Jenderal Pendidikan Usia Dini, Pendidikan Dasar, dan Pendidikan Menengah</p>
+                <p>Kementerian Pendidikan Dasar dan Menengah</p>
             </div>
         </div>
 
@@ -1672,6 +1701,18 @@
                 <button class="btn-next" style="position: absolute; bottom: 50px; left: 50px;" onclick="nextAsesmenStep(1)">⬅</button>
                 <button class="btn-next" style="position: absolute; bottom: 50px; right: 50px;" onclick="nextAsesmenStep(3)">➡</button>
             </div>
+            
+            <div id="modal-wordsearch-done" class="hidden" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:300; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                <div class="win-box" style="background: white; border-color: #3498db; animation: popIn 0.5s;">
+                    <h1 style="font-family:'Chewy'; font-size: 5rem; color: #3498db; margin:0;">LUAR BIASA! 🎉</h1>
+                    <p style="font-size: 2rem; color: #555; font-family:'Fredoka'; margin: 20px 0;">
+                        Kamu berhasil menemukan 5 kata!
+                    </p>
+                    <button class="btn-start-action" onclick="finishWordSearchStep()">
+                        LANJUTKAN ➡
+                    </button>
+                </div>
+            </div>
 
             <div id="asesmen-p3" class="asesmen-slide hidden">
                 <h2 class="page-title" style="font-size: 2.5rem; margin-top: 20px;">Pilih Jawaban yang Benar!</h2>
@@ -1859,6 +1900,25 @@
             setTimeout(scaleContainer, 200);
         });
 
+        // --- FUNGSI BARU: Konversi Koordinat Layar ke Game (1920x1080) ---
+        function getGameX(clientX) {
+            const container = document.getElementById('game-container');
+            const rect = container.getBoundingClientRect(); // Ambil posisi & ukuran aktual container di layar
+            
+            // Hitung posisi relatif mouse terhadap container
+            let x = clientX - rect.left;
+            
+            // Sesuaikan dengan skala (Scale Factor)
+            // Rumus: (Posisi Mouse di Kotak / Lebar Kotak Aktual) * 1920
+            let gameX = (x / rect.width) * 1920;
+            
+            // Pastikan tidak keluar batas (Clamp)
+            if (gameX < 0) gameX = 0;
+            if (gameX > 1920) gameX = 1920;
+            
+            return gameX;
+        }
+
         // 2. DECORATION
         function createDecorations() {
             const layer = document.getElementById('decor-layer');
@@ -1908,7 +1968,7 @@
             if(pageName !== 'game-duel') { isDuelRunning = false; clearInterval(duelSpawnInterval); }
 
             // Atur Footer
-            if(pageName === 'game-duel' || pageName === 'game-rain' || pageName === 'asesmen') {
+            if(pageName === 'game-duel' || pageName === 'game-rain' || pageName === 'asesmen' || pageName === 'cover') {
                 if(footer) footer.style.display = 'none'; 
             } else {
                 if(footer) footer.style.display = ''; 
@@ -2104,11 +2164,20 @@
         let gameRainInterval, spawnInterval, scoreRain = 0, lifeRain = 3, isGameRunning = false;
         
         function moveBasket(clientX) {
-            if (!isGameRunning) return;
-            let xPosPercent = (clientX / window.innerWidth) * 100;
-            if (xPosPercent < 5) xPosPercent = 5; if (xPosPercent > 95) xPosPercent = 95;
-            document.getElementById('player-bucket').style.left = xPosPercent + '%';
-        }
+        if (!isGameRunning) return;
+        
+        // GUNAKAN FUNGSI BARU
+        let gameX = getGameX(clientX);
+        
+        // Ubah ke persentase berdasarkan lebar kanvas 1920
+        let xPosPercent = (gameX / 1920) * 100;
+
+        // Batasi agar keranjang tidak tembus dinding (5% - 95%)
+        if (xPosPercent < 5) xPosPercent = 5; 
+        if (xPosPercent > 95) xPosPercent = 95;
+        
+        document.getElementById('player-bucket').style.left = xPosPercent + '%';
+    }
         window.addEventListener('mousemove', (e) => { moveBasket(e.clientX); });
         window.addEventListener('touchmove', (e) => { moveBasket(e.touches[0].clientX); }, {passive: false});
 
@@ -2298,8 +2367,11 @@
             gameArea.addEventListener('touchstart', duelHandlers.move, { passive: false });
             gameArea.addEventListener('touchmove', duelHandlers.move, { passive: false });
             gameArea.addEventListener('mousemove', (e) => {
-                const clientX = e.clientX;
-                if (clientX < window.innerWidth / 2) moveP1(clientX); else moveP2(clientX);
+                // Gunakan fungsi baru untuk mendeteksi posisi X di dalam game
+                const gameX = getGameX(e.clientX);
+                
+                // 1920 / 2 = 960 (Titik tengah layar game)
+                if (gameX < 960) moveP1(gameX); else moveP2(gameX);
             });
         }
         function removeDuelControls() {
@@ -2310,19 +2382,34 @@
             if (!isDuelRunning) return;
             let touches = e.touches; 
             for (let i = 0; i < touches.length; i++) {
-                const clientX = touches[i].clientX;
-                if (clientX < window.innerWidth / 2) moveP1(clientX); else moveP2(clientX);
+                const gameX = getGameX(touches[i].clientX); // Pakai fungsi baru
+                if (gameX < 960) moveP1(gameX); else moveP2(gameX);
             }
         }
-        function moveP1(clientX) {
+        function moveP1(gameX) {
             if (p1Frozen) return; 
-            let percent = (clientX / window.innerWidth) * 100; percent = Math.max(5, Math.min(45, percent)); 
-            p1Pos = percent; document.getElementById('cannon-p1').style.left = percent + '%';
+            
+            // Hitung persentase dari 1920, bukan window.innerWidth
+            let percent = (gameX / 1920) * 100; 
+            
+            // Batas area Pemain 1 (5% sampai 45%)
+            percent = Math.max(5, Math.min(45, percent)); 
+            
+            p1Pos = percent; 
+            document.getElementById('cannon-p1').style.left = percent + '%';
         }
-        function moveP2(clientX) {
+
+        function moveP2(gameX) {
             if (p2Frozen) return;
-            let percent = (clientX / window.innerWidth) * 100; percent = Math.max(55, Math.min(95, percent)); 
-            p2Pos = percent; document.getElementById('cannon-p2').style.left = percent + '%';
+            
+            // Hitung persentase dari 1920
+            let percent = (gameX / 1920) * 100; 
+            
+            // Batas area Pemain 2 (55% sampai 95%)
+            percent = Math.max(55, Math.min(95, percent)); 
+            
+            p2Pos = percent; 
+            document.getElementById('cannon-p2').style.left = percent + '%';
         }
         function createBullet(player) {
             const area = document.getElementById('duel-area');
@@ -2375,18 +2462,36 @@
             const area = document.getElementById('duel-area');
             const item = document.createElement('img');
             item.className = 'duel-item';
+            
+            // ... (Kode pemilihan gambar 'type' biarkan sama) ...
             const type = Math.random() > 0.5 ? 'beraturan' : 'tak-beraturan';
             item.dataset.type = type;
             if (type === 'beraturan') { const imgs = ['assets/persegi.png', 'assets/segitiga.png', 'assets/lingkaran.png', 'assets/jamdinding.png']; item.src = imgs[Math.floor(Math.random() * imgs.length)]; } 
             else { const imgs = ['assets/pohon.png', 'assets/sepatu.png', 'assets/awan.png', 'assets/daun.png']; item.src = imgs[Math.floor(Math.random() * imgs.length)]; }
-            let posX = Math.random() * (window.innerWidth - 100); let posY = -100; let speedX = (Math.random() - 0.5) * 6; let speedY = 3 + Math.random() * 2;     
-            item.style.left = posX + 'px'; item.style.top = posY + 'px'; area.appendChild(item);
+            
+            // PERBAIKAN DI SINI:
+            // 1. Posisi awal (posX) gunakan range 1920
+            let posX = Math.random() * (1920 - 100); 
+            let posY = -100; 
+            let speedX = (Math.random() - 0.5) * 6; 
+            let speedY = 3 + Math.random() * 2;     
+            
+            item.style.left = posX + 'px'; item.style.top = posY + 'px'; 
+            area.appendChild(item);
+            
             const moveInt = setInterval(() => {
                 if(!isDuelRunning) { clearInterval(moveInt); item.remove(); return; }
                 posX += speedX; posY += speedY;
-                if (posX <= 0 || posX >= window.innerWidth - 80) speedX *= -1; 
+                
+                // PERBAIKAN PANTULAN (Invisible Wall):
+                // Gunakan angka 1920 (lebar canvas), bukan window.innerWidth
+                // Angka 80 adalah estimasi lebar item agar tidak keluar garis
+                if (posX <= 0 || posX >= 1920 - 80) {
+                    speedX *= -1; 
+                }
+
                 item.style.left = posX + 'px'; item.style.top = posY + 'px';
-                if (posY > window.innerHeight) { item.remove(); clearInterval(moveInt); }
+                if (posY > 1080) { item.remove(); clearInterval(moveInt); } // Gunakan 1080 (tinggi canvas)
             }, 20);
         }
 
@@ -2401,7 +2506,17 @@
         };
 
         const keyStep1 = { 'm1': 'Beraturan', 'm2': 'Tak Beraturan', 'm3': 'Beraturan', 'm4': 'Tak Beraturan', 'm5': 'Beraturan' };
-        const keyStep2 = ['DAUN', 'POHON', 'BATU', 'AWAN', 'AIR']; 
+        
+        // --- UPDATE: BANK SOAL & PENGECOH ---
+        // 1. Gudang 10 Jawaban Benar (Benda Tak Beraturan)
+        const bankKataBenar = ['DAUN', 'POHON', 'BATU', 'AWAN', 'AIR', 'API', 'ASAP', 'PASIR', 'OMBAK', 'TANAH'];
+        
+        // 2. Gudang Kata Pengecoh (Benda Beraturan)
+        const bankPengecoh = ['PERSEGI', 'SEGITIGA', 'MEJA', 'LINGKARAN', 'KOIN', 'BUKU'];
+
+        // 3. Kunci Jawaban Aktif (Gunakan 'let' agar isinya bisa berubah-ubah otomatis)
+        let keyStep2 = []; 
+
         const keyStep3 = { 1:'B', 2:'C', 3:'A', 4:'B', 5:'A' };
 
         // --- NAVIGASI ---
@@ -2424,7 +2539,8 @@
             // Init Game
             const wordGrid = document.getElementById('word-grid');
             if(step === 2 && wordGrid && wordGrid.innerHTML === '') {
-                initWordSearchManual();
+                initWordSearchAuto(); // Ubah ke Auto agar reset benar
+                
                 // FIX: Paksa tombol lanjut agar tidak ketutup footer
                 const btnContainer = document.getElementById('btn-next-wordsearch');
                 if(btnContainer) {
@@ -2512,7 +2628,16 @@
         const rows = 10;
         const cols = 12;
 
-        // Fungsi Generate Papan (Tetap menggunakan kunci jawaban agar kata tersedia)
+        // Fungsi Helper Acak (Fisher-Yates) - TAMBAHAN BARU
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Fungsi Generate Papan (UPDATE LOGIKA)
         function initWordSearchAuto() {
             const grid = document.getElementById('word-grid');
             grid.innerHTML = '';
@@ -2526,16 +2651,31 @@
             document.getElementById('count-found').innerText = '0';
             document.getElementById('btn-next-wordsearch').classList.add('hidden');
 
+            // --- BAGIAN PENTING: ISI KEYSTEP2 SECARA ACAK ---
+            
+            // 1. Acak gudang kata benar & pengecoh
+            let acakBenar = shuffleArray([...bankKataBenar]); 
+            let acakPengecoh = shuffleArray([...bankPengecoh]);
+
+            // 2. Masukkan 5 kata teratas ke keyStep2 (Kunci Jawaban Sesi Ini)
+            keyStep2 = acakBenar.slice(0, 5);
+
+            // --- MEMBUAT PAPAN (GRID) ---
+
             // 1. Buat Array Kosong
             let board = new Array(rows * cols).fill(null);
 
-            // 2. Pasang Kata Kunci (Diam-diam)
-            // Kita tetap pasang kata kunci agar ada jawabannya, tapi siswa tidak diberitahu
+            // 2. Pasang 5 Kata Benar (dari keyStep2)
             keyStep2.forEach(word => {
                 placeWord(board, word);
             });
 
-            // 3. Isi sisa kotak dengan huruf acak
+            // 3. Pasang Kata Pengecoh (Masuk ke papan, tapi tidak masuk kunci jawaban)
+            acakPengecoh.forEach(word => {
+                placeWord(board, word);
+            });
+
+            // 4. Isi sisa kotak dengan huruf acak
             const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
             for (let i = 0; i < board.length; i++) {
                 if (board[i] === null) {
@@ -2546,7 +2686,7 @@
             // Simpan data board ke variabel global
             gridLettersData = board;
 
-            // 4. Render ke HTML
+            // 5. Render ke HTML
             board.forEach((char, idx) => {
                 const div = document.createElement('div');
                 div.className = 'grid-letter';
@@ -2555,6 +2695,8 @@
                 div.onclick = () => toggleLetter(div, idx);
                 grid.appendChild(div);
             });
+            
+            console.log("Kunci Jawaban Sesi Ini:", keyStep2); // Debugging
         }
 
         // Fungsi Helper: Menempatkan kata (Logika sama seperti sebelumnya)
@@ -2626,7 +2768,7 @@
             }
 
             // 5. SIMPAN JAWABAN (TANPA CEK BENAR/SALAH)
-            // Di sini kita terima APAPUN yang siswa bentuk.
+            // Di sini kita terima APAPUN yang siswa bentuk (termasuk pengecoh).
             userAnswers.step2.push(word);
 
             // 6. Update Visual (Ubah jadi warna 'Tersimpan' / Biru)
@@ -2645,10 +2787,9 @@
             if(savedWordsCount >= 5) {
                 // Tampilkan tombol lanjut
                 document.getElementById('btn-next-wordsearch').classList.remove('hidden');
-                alert("Jawaban tersimpan! Kamu sudah menemukan 5 kata. Silakan klik Lanjut.");
+                document.getElementById('modal-wordsearch-done').classList.remove('hidden');
             } else {
                 // Feedback Netral
-                // Opsional: alert("Kata '" + word + "' tersimpan.");
             }
         }
 
@@ -2663,6 +2804,14 @@
                     initWordSearchAuto();
                 }
             }
+        }
+
+        function finishWordSearchStep() {
+            // 1. Sembunyikan Modal
+            document.getElementById('modal-wordsearch-done').classList.add('hidden');
+            
+            // 2. Langsung pindah ke Step 3 (Kuis)
+            nextAsesmenStep(3);
         }
 
         // ==========================================
@@ -2701,15 +2850,33 @@
                 totalCorrect += correctLines;
                 if(correctLines < 5) feedbackList.innerHTML += `<li>⚠️ <b>Menghubungkan:</b> Benar ${correctLines} dari 5.</li><hr>`;
 
-                // Step 2
+                // Step 2 (UPDATE PENILAIAN DENGAN PENGECOH)
                 let correctWords = 0;
+                let foundDistractors = 0;
+
                 if(userAnswers.step2 && userAnswers.step2.length > 0) {
                     userAnswers.step2.forEach(word => {
-                        if(keyStep2.includes(word)) correctWords++;
+                        // Cek apakah masuk dalam 5 kunci jawaban sesi ini
+                        if(keyStep2.includes(word)) {
+                            correctWords++;
+                        }
+                        // Cek apakah siswa memilih pengecoh
+                        else if (bankPengecoh.includes(word)) {
+                            foundDistractors++;
+                        }
                     });
                 }
                 totalCorrect += correctWords;
-                if(correctWords < 5) feedbackList.innerHTML += `<li>⚠️ <b>Cari Kata:</b> Menemukan ${correctWords} kata benar.</li><hr>`;
+                
+                // Feedback Cari Kata
+                if(correctWords < 5) {
+                    let msg = `<li>⚠️ <b>Cari Kata:</b> Benar ${correctWords} dari 5 kata.`;
+                    if(foundDistractors > 0) {
+                        msg += `<br><span style="font-size:1.2rem; color:#888;">(Kamu terkecoh memilih ${foundDistractors} benda beraturan)</span>`;
+                    }
+                    msg += `</li><hr>`;
+                    feedbackList.innerHTML += msg;
+                }
 
                 // Step 3
                 let correctQuiz = 0;
@@ -2750,10 +2917,8 @@
             });
             selectedLeftEl = null;
 
-            // --- BAGIAN INI YANG DIUBAH ---
-            // Tambahkan 'true' agar tidak muncul popup konfirmasi
+            // Reset P2
             fullResetWordSearch(true); 
-            // -----------------------------
 
             // Reset P3
             document.querySelectorAll('.options button').forEach(e => e.classList.remove('selected'));
