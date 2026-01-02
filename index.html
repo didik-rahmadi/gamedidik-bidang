@@ -522,12 +522,13 @@
         /* Background Putih Kertas */
         .dev-page-container {
             width: 100%; height: 100%; 
-            background-color: #FFFFFF; 
             position: relative;
             display: flex; flex-direction: column; align-items: center;
             padding-top: 100px; /* Jarak dari atas */
             color: #000;
             font-family: 'Nunito', sans-serif; /* Font formal */
+            background: url('assets/Background Pengembang.png') no-repeat center center;
+            background-size: 100% 100%;
         }
 
         /* Logo Atas */
@@ -545,7 +546,7 @@
 
         /* Garis Oranye */
         .orange-line {
-            width: 90%; height: 4px; background-color: #F39C12; 
+            width: 95%; height: 4px; background-color: #F39C12; 
             margin-bottom: 40px;
         }
 
@@ -582,6 +583,39 @@
             border-radius: 10px; /* Ujung bulat */
             z-index: 100;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* Card Khusus untuk Slide 1 (Identitas Media) */
+        .dev-info-card {
+            background-color: rgba(255, 255, 255, 0.90); /* Putih sedikit transparan */
+            border-radius: 30px; /* Sudut membulat */
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2); /* Efek bayangan */
+            padding: 40px 60px;
+            width: 70%;          /* Lebar 90% dari layar */
+            overflow-y: auto;    /* Munculkan scrollbar jika konten terlalu panjang */
+            border: 6px solid #c92800;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-top: -20px;   /* Sedikit penyesuaian posisi vertikal */
+            animation: floatIn 1s ease-out;
+        }
+
+        /* Mempercantik Scrollbar di dalam card */
+        .dev-info-card::-webkit-scrollbar {
+            width: 10px;
+        }
+        .dev-info-card::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        .dev-info-card::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 10px;
+        }
+        .dev-info-card::-webkit-scrollbar-thumb:hover {
+            background: #aaa;
         }
 
         /* ===========================
@@ -1103,10 +1137,8 @@
             
             /* --- PENTING: POSISI DI LANGIT --- */
             position: absolute; 
-            top: 15%;  /* Jarak dari atas (langit) */
-            left: 4%; /* Jarak dari kiri (di atas sekolah) */
-            width: 45%; /* Batasi lebar agar tidak menabrak murid di kanan */
-            max-width: 800px;
+            top: 3%;  /* Jarak dari atas (langit) */
+            max-width: 50%;
             
             /* Animasi masuk */
             animation: floatIn 1s ease-out;
@@ -1118,12 +1150,12 @@
         }
 
         .dev-photo {
-            width: 200px; /* Ukuran Foto Tidak Terlalu Besar */
-            height: 200px;
+            width: 300px; /* Ukuran Foto Tidak Terlalu Besar */
+            height: 300px;
             border-radius: 50%; /* Bulat */
             object-fit: cover;
             border: 5px solid #3498db;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
             background-color: #eee; /* Placeholder warna jika foto belum ada */
         }
 
@@ -1246,6 +1278,37 @@
 <body>
 
     <div id="game-container">
+        <audio id="bgm-global" src="sound/sound_menu.mp3" loop preload="auto"></audio>
+        <audio id="bgm-drag" src="sound/sound_game_drag.mp3" loop preload="auto"></audio>
+        <audio id="bgm-rain" src="sound/sound_game_rain.mp3" loop preload="auto"></audio>
+        <audio id="bgm-seek" src="sound/sound_game_seek.mp3" loop></audio>
+        <audio id="bgm-shooter" src="sound/sound_game_shooter.mp3" loop></audio>
+        <audio id="sfx-win-shooter" src="sound/win_shooter.mp3"></audio>
+        <audio id="sfx-win" src="sound/win.mp3" preload="auto"></audio>
+        <audio id="sfx-fail" src="sound/failure.mp3" preload="auto"></audio>
+        <audio id="voice-materi-1" src="sound/sound_materi_beraturan.mp3"></audio>
+        <audio id="voice-materi-2" src="sound/sound_materi_tak_beraturan.mp3"></audio>
+
+        <div id="modal-welcome" style="position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:999; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+            
+            <div class="win-box" style="background: white; border: 8px solid #FFD93D; padding: 40px; width: 60%; max-width: 900px; animation: popIn 0.5s;">
+                <h1 style="font-family:'Chewy'; font-size: 4rem; color: #d35400; margin: 0 0 20px 0;">Selamat Datang! 👋</h1>
+                
+                <p style="font-size: 2rem; color: #2c3e50; font-family:'Fredoka'; font-weight:bold; line-height: 1.4; margin-bottom: 10px;">
+                    di Media Pembelajaran Interaktif Seni Rupa Fase A<br>"Mengenal Bidang"
+                </p>
+                
+                <p style="font-size: 1.5rem; color: #7f8c8d; font-family:'Fredoka'; line-height: 1.5; margin-bottom: 30px;">
+                    Media ini berisi materi pengenalan bentuk beraturan dan tak beraturan, video pembelajaran, serta permainan seru.<br>
+                    Yuk kita mulai belajar!
+                </p>
+
+                <button class="btn-start-action" onclick="enterApplication()">
+                    OK, MULAI! 🚀
+                </button>
+            </div>
+
+        </div>
         <div id="decor-layer"></div>
         
         <div class="footer-info" style="display: none;">
@@ -1795,55 +1858,59 @@
 
             <div id="dev-slide-1" class="dev-slide">
                 <div class="dev-page-container">
-                    <img src="assets/Logo Tut Wuri Handayani.png" class="dev-logo-top" alt="Logo">
+                    
+                    <div class="dev-info-card">
+                        
+                        <img src="assets/Logo Tut Wuri Handayani.png" class="dev-logo-top" alt="Logo" style="margin-top: 0;">
 
-                    <div class="dev-header">
-                        <div class="dev-h2">DIREKTORAT SEKOLAH DASAR</div>
-                        <div class="dev-h3">DIREKTORAT JENDERAL PENDIDIKAN ANAK USIA DINI, PENDIDIKAN DASAR, DAN PENDIDIKAN MENENGAH</div>
-                        <div class="dev-h2">KEMENTERIAN PENDIDIKAN DASAR DAN MENENGAH</div>
-                    </div>
-
-                    <div class="orange-line"></div>
-
-                    <div class="credits-grid">
-                        <div class="c-label">Pengarah</div><div class="c-sep">:</div>
-                        <div class="c-val">Moch. Salim Somad, S.Kom., M.Pd., Direktorat Sekolah Dasar</div>
-
-                        <div class="c-label">Penanggung Jawab</div><div class="c-sep">:</div>
-                        <div class="c-val">Lanny Anggraini, S.Pd., M.A., Direktorat Sekolah Dasar</div>
-
-                        <div class="c-label">Pengembang</div><div class="c-sep">:</div>
-                        <div class="c-val">Didik Rahmadi, S.Pd.</div>
-
-                        <div class="c-label">Pengkaji Materi</div><div class="c-sep">:</div>
-                        <div class="c-val">Bintang Adhi Permana, M.Pd.</div>
-
-                        <div class="c-label">Pengkaji Media</div><div class="c-sep">:</div>
-                        <div class="c-val">
-                            1. Muh. Noor Ginanjar Jaelani, S.Pd., Direktorat Sekolah Dasar<br>
-                            2. Ine Rahmawati, S.Pd., M.Si., Direktorat Sekolah Dasar
+                        <div class="dev-header">
+                            <div class="dev-h2">DIREKTORAT SEKOLAH DASAR</div>
+                            <div class="dev-h3">DIREKTORAT JENDERAL PENDIDIKAN ANAK USIA DINI, PENDIDIKAN DASAR, DAN PENDIDIKAN MENENGAH</div>
+                            <div class="dev-h2">KEMENTERIAN PENDIDIKAN DASAR DAN MENENGAH</div>
                         </div>
 
-                        <div style="height: 20px;"></div><div style="height: 20px;"></div><div style="height: 20px;"></div>
+                        <div class="orange-line"></div>
 
-                        <div class="c-label">Diterbitkan oleh:</div><div class="c-sep">:</div>
-                        <div class="c-val">
-                            Direktorat Sekolah Dasar<br>
-                            Direktorat Jenderal Pendidikan Anak Usia Dini, Pendidikan Dasar, dan Pendidikan Menengah<br>
-                            Kementerian Pendidikan Dasar dan Menengah<br>
-                            Tahun 2025
+                        <div class="credits-grid">
+                            <div class="c-label">Pengarah</div><div class="c-sep">:</div>
+                            <div class="c-val">Moch. Salim Somad, S.Kom., M.Pd., Direktorat Sekolah Dasar</div>
+
+                            <div class="c-label">Penanggung Jawab</div><div class="c-sep">:</div>
+                            <div class="c-val">Lanny Anggraini, S.Pd., M.A., Direktorat Sekolah Dasar</div>
+
+                            <div class="c-label">Pengembang</div><div class="c-sep">:</div>
+                            <div class="c-val">Didik Rahmadi, S.Pd.</div>
+
+                            <div class="c-label">Pengkaji Materi</div><div class="c-sep">:</div>
+                            <div class="c-val">Bintang Adhi Permana, M.Pd.</div>
+
+                            <div class="c-label">Pengkaji Media</div><div class="c-sep">:</div>
+                            <div class="c-val">
+                                1. Muh. Noor Ginanjar Jaelani, S.Pd., Direktorat Sekolah Dasar<br>
+                                2. Ine Rahmawati, S.Pd., M.Si., Direktorat Sekolah Dasar
+                            </div>
+
+                            <div style="height: 20px;"></div><div style="height: 20px;"></div><div style="height: 20px;"></div>
+
+                            <div class="c-label">Diterbitkan oleh</div><div class="c-sep">:</div>
+                            <div class="c-val">
+                                Direktorat Sekolah Dasar<br>
+                                Direktorat Jenderal Pendidikan Anak Usia Dini, Pendidikan Dasar, dan Pendidikan Menengah<br>
+                                Kementerian Pendidikan Dasar dan Menengah<br>
+                                Tahun 2025
+                            </div>
                         </div>
+                        
+                        <div class="dev-blue-line"></div>
                     </div>
-                    
-                    <div class="dev-blue-line"></div>
-                    
+
                     <button class="btn-next" style="position: absolute; bottom: 50px; right: 50px;" onclick="switchDevSlide(2)">➡</button>
                 </div>
             </div>
 
             <div id="dev-slide-2" class="dev-slide hidden">
                 <div class="profile-card">
-                    <img src="assets/Foto Pengembang.JPG" class="dev-photo" alt="Foto Pengembang">
+                    <img src="assets/Foto Pengembang.png" class="dev-photo" alt="Foto Pengembang">
                     
                     <h2 class="dev-name">Didik Rahmadi, S.Pd.</h2>
                     <div class="dev-unit">SDN Pejaten Timur 11</div>
@@ -1851,23 +1918,138 @@
                     <div style="width: 100%; height: 4px; background: #eee; margin: 20px 0;"></div>
 
                     <div class="social-links">
-                        <a href="https://didik-rahmadi.github.io/cv/" target="_blank" class="btn-social">
-                            🌐 Website
+                        <a href="https://didik-rahmadi.github.io/cv/" target="_blank">
+                            <img src="assets/logo_web.png" class="icon-sosmed" alt="Website">
                         </a>
 
                         <a href="https://instagram.com/didik.rahmadi" target="_blank">
                             <img src="assets/logo_ig.png" class="icon-sosmed" alt="Instagram">
                         </a>
                     </div>
+                    <div class="dev-description" style="text-align: justify; line-height: 1.6; padding: 10px 20px;">
+                        <p style="font-size: 1.5rem; margin: 0;">
+                            Media pembelajaran interaktif ini dirancang sebagai jembatan antara dunia pendidikan 
+                            dan teknologi digital. Dengan mengintegrasikan konsep <em>gamification</em> ke dalam materi ajar, 
+                            media ini mengubah proses belajar menjadi pengalaman yang dinamis. Harapan kami, 
+                            melalui setiap tantangan di dalamnya, murid tidak hanya memahami materi, tetapi juga 
+                            tumbuh rasa antusiasme dalam belajar. Ini adalah langkah kecil kami untuk mencetak 
+                            generasi yang cerdas, berkarakter, dan siap menghadapi masa depan.
+                        </p>
+                    </div>
                 </div>
 
                 <button class="btn-prev" style="position: absolute; bottom: 50px; left: 50px;" onclick="switchDevSlide(1)">⬅</button>
+                <button class="btn-next" style="position: absolute; bottom: 50px; right: 50px;" onclick="switchDevSlide(3)">➡</button>
             </div>
+
+            <div id="dev-slide-3" class="dev-slide hidden">
+                <div class="dev-page-container">
+                    
+                    <div class="dev-info-card" style="margin-top:7%;">
+                        
+                        <h2 style="color: #2c3e50; font-size: 2.5rem; margin-bottom: 30px; border-bottom: 3px solid #ff9f43; display: inline-block; padding-bottom: 10px;">
+                            KREDIT & SUMBER
+                        </h2>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; font-size: 1.3rem; text-align: left; width: 100%;">
+                            
+                            <div>
+                                <div style="margin-bottom: 25px;">
+                                    <h3 style="color: #e67e22; margin-bottom: 10px;">📚 Sumber Buku</h3>
+                                    <p style="line-height: 1.5; margin: 0;">
+                                        Panduan Guru Seni Rupa untuk SD/MI Kelas II (Edisi Revisi) yang diterbitkan Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi Tahun 2024.
+                                    </p>
+                                </div>
+
+                                <div style="margin-bottom: 25px;">
+                                    <h3 style="color: #e67e22; margin-bottom: 10px;">🖼️ Aset Gambar</h3>
+                                    <p style="margin: 0;">www.canva.com</p>
+                                </div>
+
+                                <div>
+                                    <h3 style="color: #e67e22; margin-bottom: 10px;">🎙️ Pengisi Suara</h3>
+                                    <ol style="margin: 0; padding-left: 25px; line-height: 1.6;">
+                                        <li>Amira Queena Rakhmah</li>
+                                        <li>Aisyah Fathiya Rahmah</li>
+                                    </ol>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 style="color: #e67e22; margin-bottom: 10px;">🎵 Musik Latar (BGM)</h3>
+                                <p style="font-style: italic; font-size: 1rem; margin-bottom: 10px; color: #666;">Sumber: YouTube Studio Audio Library</p>
+                                <ol style="margin: 0; padding-left: 25px; line-height: 1.8;">
+                                    <li>Ukulele Beach - Doug Maxwell</li>
+                                    <li>Rainbow Forest - Quincas Moreira</li>
+                                    <li>Twirly Tops - The Green Orbs</li>
+                                    <li>Bunny Hop - Quincas Moreira</li>
+                                    <li>After School Jamboree - The Green Orbs</li>
+                                </ol>
+                            </div>
+
+                        </div>
+                        </div>
+                    <button class="btn-prev" style="position: absolute; bottom: 50px; left: 50px;" onclick="switchDevSlide(2)">⬅</button>
+                </div>
+            </div>
+
         </div>
 
     </div>
 
     <script>
+        function stopAllAudio() {
+            // Daftar semua ID audio yang ada di game
+            const audioList = [
+                'bgm-seek',         // Game 3
+                'bgm-shooter',      // Game 4
+                'sfx-win',          // Win umum
+                'sfx-win-shooter',  // Win shooter
+                'bgm-rain',         // Game 2 (Jaga-jaga)
+                'sfx-fail',         // Fail umum
+                'bgm-wrong'         // Suara salah
+            ];
+
+            audioList.forEach(id => {
+                const audio = document.getElementById(id);
+                if (audio) {
+                    audio.pause();
+                    audio.currentTime = 0; // Reset ke detik 0
+                }
+            });
+        }
+        function enterApplication() {
+            // 1. Ambil elemen
+            const modal = document.getElementById('modal-welcome');
+            const bgm = document.getElementById('bgm-global');
+
+            if(modal) {
+                modal.classList.add('hidden'); // Sembunyikan visual
+                modal.style.zIndex = -1;       // PENTING: Turunkan layer agar tidak menghalangi klik
+            }
+
+            
+            if(bgm) {
+                bgm.volume = 0.4;
+                bgm.play().catch(e => console.log("Gagal memutar audio:", e));
+            }
+        }
+
+        window.addEventListener('load', function() {
+            scaleContainer();
+            switchPage('cover');
+            const modal = document.getElementById('modal-welcome');
+            if(modal) {
+                modal.classList.remove('hidden');
+                modal.style.zIndex = 999; // Pastikan dia menutupi Cover di awal
+            }
+        });
+
+        window.addEventListener('resize', scaleContainer);
+        window.addEventListener('orientationchange', function() {
+            setTimeout(scaleContainer, 200);
+        });
+
         // 1. AUTO SCALE
         function scaleContainer() {
             const container = document.getElementById('game-container');
@@ -1880,25 +2062,21 @@
 
             let scale;
 
-            // Logika "Letterbox": Pasikan seluruh game masuk ke layar tanpa terpotong
-                if (windowRatio < targetRatio) {
-                    // Layar lebih sempit dari game (Fit to Width)
-                    scale = windowWidth / targetWidth;
-                } else {
-                    // Layar lebih pendek dari game (Fit to Height)
-                    scale = windowHeight / targetHeight;
-                }
-
-                // Terapkan Scale dan Centering sekaligus
-                // translate(-50%, -50%) memastikan div tetap di tengah layar
-                container.style.transform = `translate(-50%, -50%) scale(${scale})`;
+        // Logika "Letterbox": Pasikan seluruh game masuk ke layar tanpa terpotong
+            if (windowRatio < targetRatio) {
+                // Layar lebih sempit dari game (Fit to Width)
+                scale = windowWidth / targetWidth;
+            } else {
+                // Layar lebih pendek dari game (Fit to Height)
+                scale = windowHeight / targetHeight;
             }
 
-        window.addEventListener('load', scaleContainer);
-        window.addEventListener('resize', scaleContainer);
-        window.addEventListener('orientationchange', function() {
-            setTimeout(scaleContainer, 200);
-        });
+            // Terapkan Scale dan Centering sekaligus
+            // translate(-50%, -50%) memastikan div tetap di tengah layar
+            container.style.transform = `translate(-50%, -50%) scale(${scale})`;
+        }
+
+        
 
         // --- FUNGSI BARU: Konversi Koordinat Layar ke Game (1920x1080) ---
         function getGameX(clientX) {
@@ -1942,9 +2120,62 @@
 
         // 3. PAGE SWITCHING LOGIC (UPDATE: AUTO RESET ASESMEN)
         function switchPage(pageName) {
+            stopAllAudio();
+            const v1 = document.getElementById('voice-materi-1');
+            const v2 = document.getElementById('voice-materi-2');
+            
+            if (v1) { v1.pause(); v1.currentTime = 0; }
+            if (v2) { v2.pause(); v2.currentTime = 0; }
             const footer = document.querySelector('.footer-info');
             const container = document.getElementById('game-container');
             
+            // --- SETUP AUDIO ---
+            const bgmGlobal = document.getElementById('bgm-global');
+            const bgmDrag = document.getElementById('bgm-drag');
+            const bgmRain = document.getElementById('bgm-rain'); // <--- Audio Baru
+            
+
+            // Daftar halaman hening (Global BGM mati)
+            const silentPages = ['video', 'game-drag', 'game-rain', 'game-seek', 'game-duel', 'asesmen'];
+
+            // 1. ATUR MUSIK GLOBAL (MENU)
+            if (bgmGlobal) {
+                if (silentPages.includes(pageName)) {
+                    bgmGlobal.pause();
+                } else {
+                    if (bgmGlobal.paused) {
+                        bgmGlobal.currentTime = 0; 
+                        bgmGlobal.volume = 0.4;
+                        bgmGlobal.play().catch(e => {});
+                    }
+                }
+            }
+
+            // 2. ATUR MUSIK GAME DRAG
+            if (bgmDrag) {
+                if (pageName === 'game-drag') {
+                    bgmDrag.currentTime = 0;
+                    bgmDrag.volume = 0.4;
+                    bgmDrag.play().catch(e => {});
+                } else {
+                    bgmDrag.pause();
+                    bgmDrag.currentTime = 0;
+                }
+            }
+
+            // 3. ATUR MUSIK GAME RAIN (BARU)
+            if (bgmRain) {
+                if (pageName === 'game-rain') {
+                    bgmRain.currentTime = 0;
+                    bgmRain.volume = 0.4; // Volume sedang
+                    bgmRain.play().catch(e => {});
+                } else {
+                    // Matikan musik jika keluar dari game rain
+                    bgmRain.pause();
+                    bgmRain.currentTime = 0;
+                }
+            }
+                        
             const pages = {
                 cover: document.getElementById('view-cover'),
                 menu: document.getElementById('view-menu'),
@@ -1964,8 +2195,15 @@
             const videoEl = document.getElementById('mainVideo');
             if(videoEl) { videoEl.pause(); videoEl.currentTime = 0; }
             
-            if(pageName !== 'game-rain') { isGameRunning = false; clearInterval(spawnInterval); }
-            if(pageName !== 'game-duel') { isDuelRunning = false; clearInterval(duelSpawnInterval); }
+            if(pageName !== 'game-rain') { 
+                isGameRunning = false; clearInterval(spawnInterval); 
+                document.querySelectorAll('.falling-item').forEach(el => el.remove());
+            }
+            if(pageName !== 'game-duel') { isDuelRunning = false; 
+                clearInterval(duelSpawnInterval); 
+                clearInterval(duelTimerInterval);
+                if (typeof stopAutoFire === "function") stopAutoFire(); 
+            }
 
             // Atur Footer
             if(pageName === 'game-duel' || pageName === 'game-rain' || pageName === 'asesmen' || pageName === 'cover') {
@@ -2032,6 +2270,7 @@
             
             } else if (pageName === 'dev') {
                 pages.dev.classList.remove('hidden');
+                container.style.background = "url('assets/Background Pengembang.png') no-repeat center center / 100% 100%";
                 switchDevSlide(1); 
             }
         }
@@ -2040,21 +2279,31 @@
         function switchDevSlide(slideNum) {
             const slide1 = document.getElementById('dev-slide-1');
             const slide2 = document.getElementById('dev-slide-2');
+            const slide3 = document.getElementById('dev-slide-3');
             const container = document.getElementById('game-container');
 
             // Sembunyikan semua dulu
-            slide1.classList.add('hidden');
-            slide2.classList.add('hidden');
+            if(slide1) slide1.classList.add('hidden');
+            if(slide2) slide2.classList.add('hidden');
+            if(slide3) slide3.classList.add('hidden');
+
+            // SETUP BACKGROUND IMAGE (Sama untuk semua slide developer)
+            const bgImage = "url('assets/Background Pengembang.png') no-repeat center center / 100% 100%";
 
             if (slideNum === 1) {
-                // Tampilkan Kredit (Background Putih Kertas)
+                // Slide 1: Identitas (Pakai Card)
                 slide1.classList.remove('hidden');
-                container.style.background = "#FFFFFF"; 
+                container.style.background = bgImage; // Ganti Putih jadi Image
+
             } else if (slideNum === 2) {
-                // Tampilkan Profil (Background Gambar)
+                // Slide 2: Profil (Tanpa Card / Card Bawaan Profil)
                 slide2.classList.remove('hidden');
-                // Pastikan Anda memasukkan file 'Background Pengembang.png' ke folder assets
-                container.style.background = "url('assets/Background Pengembang.png') no-repeat center center / 100% 100%";
+                container.style.background = bgImage;
+                
+            } else if (slideNum === 3) {
+                // Slide 3: Kredit (Pakai Card)
+                slide3.classList.remove('hidden');
+                container.style.background = bgImage; // Ganti Putih jadi Image
             }
         }
 
@@ -2089,12 +2338,43 @@
         }
 
         function showMateriSlide(n) {
+            // --- 1. MATIKAN SUARA NARASI SEBELUMNYA ---
+            // (BGM Menu tetap jalan, kita hanya reset suara orang bicara)
+            const v1 = document.getElementById('voice-materi-1'); // Slide 1 Sound
+            const v2 = document.getElementById('voice-materi-2'); // Slide 2 Sound
+
+            if (v1) { v1.pause(); v1.currentTime = 0; }
+            if (v2) { v2.pause(); v2.currentTime = 0; }
+
+            // --- 2. LOGIKA VISUAL (GANTI SLIDE) ---
             const slides = document.querySelectorAll('.materi-slide');
             if (n > slides.length) { currentMateriSlide = 1 }
             if (n < 1) { currentMateriSlide = slides.length }
 
+            // Sembunyikan semua slide (Hapus class active)
             slides.forEach(slide => slide.classList.remove('active'));
-            document.getElementById('slide-' + currentMateriSlide).classList.add('active');
+            
+            // Tampilkan slide yang aktif
+            // Pastikan ID di HTML Anda adalah: id="slide-1", id="slide-2", dst.
+            const activeSlide = document.getElementById('slide-' + currentMateriSlide);
+            if (activeSlide) {
+                activeSlide.classList.add('active');
+            }
+
+            // --- 3. LOGIKA AUDIO (PUTAR NARASI BARU) ---
+            if (currentMateriSlide === 1) {
+                // Jika Slide 1: Mainkan suara materi beraturan
+                if (v1) {
+                    v1.volume = 1.0; // Volume penuh (biar terdengar jelas di atas BGM)
+                    v1.play().catch(e => console.log("Error play voice 1:", e));
+                }
+            } else if (currentMateriSlide === 2) {
+                // Jika Slide 2: Mainkan suara materi tak beraturan
+                if (v2) {
+                    v2.volume = 1.0; 
+                    v2.play().catch(e => console.log("Error play voice 2:", e));
+                }
+            }
         }
 
         // --- GAME LOGIC 1: DRAG ---
@@ -2150,7 +2430,24 @@
                 wrongModal.classList.add('hidden');
             }, 1500);
         }
-        function checkWin() { if (placedItems === totalItems) setTimeout(() => { document.getElementById('win-message').classList.remove('hidden'); }, 500); }
+        function checkWin() { 
+            if (placedItems === totalItems) {
+                setTimeout(() => {
+                    document.getElementById('win-message').classList.remove('hidden');
+                    const bgmDrag = document.getElementById('bgm-drag');
+                    if(bgmDrag) {
+                        bgmDrag.pause();
+                        bgmDrag.currentTime = 0;
+                    }
+                    const sfxWin = document.getElementById('sfx-win');
+                    if(sfxWin) {
+                        sfxWin.volume = 1.0; // Volume maksimal
+                        sfxWin.currentTime = 0;
+                        sfxWin.play().catch(e => console.log("Gagal putar win sfx"));
+                    }
+                }, 500); 
+            }
+        }
         function resetGame() {
             placedItems = 0; document.getElementById('win-message').classList.add('hidden');
             const tray = document.getElementById('item-tray');
@@ -2164,41 +2461,67 @@
         let gameRainInterval, spawnInterval, scoreRain = 0, lifeRain = 3, isGameRunning = false;
         
         function moveBasket(clientX) {
-        if (!isGameRunning) return;
-        
-        // GUNAKAN FUNGSI BARU
-        let gameX = getGameX(clientX);
-        
-        // Ubah ke persentase berdasarkan lebar kanvas 1920
-        let xPosPercent = (gameX / 1920) * 100;
+            if (!isGameRunning) return;
+            
+            // GUNAKAN FUNGSI BARU
+            let gameX = getGameX(clientX);
+            
+            // Ubah ke persentase berdasarkan lebar kanvas 1920
+            let xPosPercent = (gameX / 1920) * 100;
 
-        // Batasi agar keranjang tidak tembus dinding (5% - 95%)
-        if (xPosPercent < 5) xPosPercent = 5; 
-        if (xPosPercent > 95) xPosPercent = 95;
-        
-        document.getElementById('player-bucket').style.left = xPosPercent + '%';
-    }
+            // Batasi agar keranjang tidak tembus dinding (5% - 95%)
+            if (xPosPercent < 5) xPosPercent = 5; 
+            if (xPosPercent > 95) xPosPercent = 95;
+            
+            document.getElementById('player-bucket').style.left = xPosPercent + '%';
+        }
         window.addEventListener('mousemove', (e) => { moveBasket(e.clientX); });
         window.addEventListener('touchmove', (e) => { moveBasket(e.touches[0].clientX); }, {passive: false});
 
         function startGameRain() {
+            // --- 1. RESET LOGIKA GAME (Kode Anda) ---
             document.getElementById('game-container').style.background = "url('assets/Background Gamerain.png') no-repeat center center / 100% 100%";
-            scoreRain = 0; lifeRain = 3; isGameRunning = true;
+            scoreRain = 0; 
+            lifeRain = 3; 
+            isGameRunning = true;
+            
             document.getElementById('score-rain').innerText = scoreRain + "/100"; 
             document.getElementById('life-rain').innerText = lifeRain;
             
+            // Reset Judul Modal (Jaga-jaga)
             const title = document.getElementById('end-title');
             if(title) { title.innerText = "PERMAINAN SELESAI"; title.style.color = "#FF6F61"; }
 
+            // Sembunyikan Modal & Bersihkan Item
             document.getElementById('start-rain-overlay').classList.add('hidden'); 
             document.getElementById('game-over-screen').classList.add('hidden');
             document.querySelectorAll('.falling-item').forEach(item => item.remove());
             
+            // Reset Interval Lama
             clearInterval(spawnInterval); 
             cancelAnimationFrame(gameRainInterval);
 
+            // Mulai Interval Baru
             spawnInterval = setInterval(spawnItem, 1200); 
             gameRainInterval = requestAnimationFrame(gameLoop);
+
+
+            // --- 2. TAMBAHAN: RESET & NYALAKAN AUDIO ---
+            // (Ini yang belum ada di kode Anda tadi)
+            
+            // A. Matikan Efek Suara Menang/Kalah (biar tidak tumpang tindih)
+            const sfxWin = document.getElementById('sfx-win');
+            const sfxFail = document.getElementById('sfx-fail');
+            if(sfxWin) { sfxWin.pause(); sfxWin.currentTime = 0; }
+            if(sfxFail) { sfxFail.pause(); sfxFail.currentTime = 0; }
+
+            // B. Nyalakan Kembali Musik Background Game Rain
+            const bgmRain = document.getElementById('bgm-rain');
+            if(bgmRain) {
+                bgmRain.currentTime = 0; // Mulai dari awal
+                bgmRain.volume = 0.4;    // Volume sedang
+                bgmRain.play().catch(e => console.log("Gagal start bgm rain:", e));
+            }
         }
 
         function spawnItem() {
@@ -2218,37 +2541,76 @@
                 item.src = images[Math.floor(Math.random() * images.length)];
             }
             
-            item.style.left = (Math.random() * 90) + '%'; item.style.top = '-100px';
+            item.style.left = (Math.random() * 90) + '%'; 
+            item.style.top = '-100px';
             area.appendChild(item);
-            let topPos = -100; const fallSpeed = 4 + Math.random() * 3; 
+            
+            let topPos = -100; 
+            const fallSpeed = 4 + Math.random() * 3; 
 
             function fall() {
                 if (!isGameRunning) return;
-                topPos += fallSpeed; item.style.top = topPos + 'px';
+                topPos += fallSpeed; 
+                item.style.top = topPos + 'px';
                 
                 if (checkCollision(item)) {
+                    // --- JIKA TERTANGKAP ---
                     if (item.dataset.type === 'tak-beraturan') { 
-                        scoreRain += 10; document.getElementById('score-rain').innerText = scoreRain + "/100";
+                        // 1. Tambah Skor
+                        scoreRain += 10; 
+                        document.getElementById('score-rain').innerText = scoreRain + "/100";
+
+                        // --- 2. MAINKAN SUARA CATCH (BARU) ---
+                        const sfxCatch = document.getElementById('sfx-catch');
+                        if(sfxCatch) {
+                            sfxCatch.currentTime = 0; // Reset biar bisa bunyi cepat beruntun
+                            sfxCatch.play().catch(e => {});
+                        }
+                        // -------------------------------------
+
+                        // 3. Cek Menang
                         if (scoreRain >= 100) gameWinRain();
-                    } else { reduceLife(); }
-                    item.remove(); return;
+                    } else { 
+                        // Jika salah tangkap (benda beraturan)
+                        reduceLife(); 
+                    }
+                    
+                    item.remove(); 
+                    return;
                 }
+                
+                // Jika jatuh ke bawah layar (tidak tertangkap)
                 if (topPos > 1080) { 
                     if (item.dataset.type === 'tak-beraturan') { reduceLife(); }
-                    item.remove(); return; 
+                    item.remove(); 
+                    return; 
                 }
+                
                 requestAnimationFrame(fall);
             }
             fall();
         }
 
         function reduceLife() {
-            lifeRain--; document.getElementById('life-rain').innerText = lifeRain;
+            // --- 1. TAMBAHAN: BUNYIKAN BGM-WRONG ---
+            const sfxWrong = document.getElementById('bgm-wrong');
+            if (sfxWrong) {
+                sfxWrong.currentTime = 0; // Reset agar bunyi dari awal
+                sfxWrong.play().catch(e => console.log("Audio error:", e));
+            }
+            // ---------------------------------------
+
+            // 2. Kode Lama Anda (Efek Visual & Logika)
+            lifeRain--; 
+            document.getElementById('life-rain').innerText = lifeRain;
+            
             const container = document.getElementById('game-container');
             container.style.background = 'red';
+            
             setTimeout(() => { 
                 if(isGameRunning) container.style.background = "url('assets/Background Gamerain.png') no-repeat center center / 100% 100%"; 
             }, 200);
+            
             if(lifeRain <= 0) gameOver();
         }
 
@@ -2260,44 +2622,136 @@
         function gameLoop() { if (!isGameRunning) return; requestAnimationFrame(gameLoop); }
         
         function gameOver() {
-            isGameRunning = false; clearInterval(spawnInterval); cancelAnimationFrame(gameRainInterval);
+            // 1. Hentikan Loop Game
+            isGameRunning = false; 
+            clearInterval(spawnInterval); 
+            cancelAnimationFrame(gameRainInterval);
+
+            // 2. Tampilkan Layar Kalah
             const title = document.getElementById('end-title');
-            title.innerText = "YAAH.. GAGAL 😢"; title.style.color = "#FF6F61";
+            title.innerText = "YAAH.. GAGAL 😢"; 
+            title.style.color = "#FF6F61";
             document.getElementById('final-score').innerText = scoreRain; 
             document.getElementById('game-over-screen').classList.remove('hidden');
+
+            // --- 3. LOGIKA AUDIO KALAH (FAILURE) ---
+            const bgmRain = document.getElementById('bgm-rain');
+            const sfxFail = document.getElementById('sfx-fail'); // Pastikan ID ini sesuai HTML
+
+            // Matikan BGM Game Rain
+            if(bgmRain) { 
+                bgmRain.pause(); 
+                bgmRain.currentTime = 0; 
+            }
+
+            // Mainkan Suara Failure
+            if(sfxFail) { 
+                sfxFail.volume = 1.0; // Volume penuh
+                sfxFail.currentTime = 0; 
+                sfxFail.play().catch(e => console.log("Gagal putar audio fail:", e)); 
+            }
         }
 
         function gameWinRain() {
-            isGameRunning = false; clearInterval(spawnInterval); cancelAnimationFrame(gameRainInterval);
+            // 1. Hentikan Loop Game
+            isGameRunning = false; 
+            clearInterval(spawnInterval); 
+            cancelAnimationFrame(gameRainInterval);
+
+            // 2. Tampilkan Layar Menang
             const title = document.getElementById('end-title');
-            title.innerText = "HEBAT! MENANG! 🎉"; title.style.color = "#2ECC71";
+            title.innerText = "HEBAT! MENANG! 🎉"; 
+            title.style.color = "#2ECC71";
             document.getElementById('final-score').innerText = "100"; 
             document.getElementById('game-over-screen').classList.remove('hidden');
+
+            // --- 3. LOGIKA AUDIO MENANG (WIN) ---
+            const bgmRain = document.getElementById('bgm-rain');
+            const sfxWin = document.getElementById('sfx-win'); // Pastikan ID ini sesuai HTML
+
+            // Matikan BGM Game Rain
+            if(bgmRain) { 
+                bgmRain.pause(); 
+                bgmRain.currentTime = 0; 
+            }
+
+            // Mainkan Suara Win
+            if(sfxWin) { 
+                sfxWin.volume = 1.0; // Volume penuh
+                sfxWin.currentTime = 0; 
+                sfxWin.play().catch(e => console.log("Gagal putar audio win:", e)); 
+            }
         }
 
         // --- GAME LOGIC 3: SEEK ---
         let seekCount = 0;
+
         function foundHitbox(element, name) {
-            if (element.classList.contains('found')) return;
+            if (element.classList.contains('found')) return; // Mencegah klik ganda
+            
+            // Tandai sebagai ditemukan
             element.classList.add('found');
             
+            // Tampilkan label nama benda
             const label = document.getElementById('found-label'); 
-            label.innerText = name; label.style.display = 'block';
+            label.innerText = name; 
+            label.style.display = 'block';
 
-            seekCount++; document.getElementById('seek-count').innerText = seekCount;
+            // Update Counter
+            seekCount++; 
+            document.getElementById('seek-count').innerText = seekCount;
+
+            // Jeda sebentar sebelum menutup label / mengecek kemenangan
             setTimeout(() => {
                 label.style.display = 'none';
-                if(seekCount >= 5) document.getElementById('seek-win-message').classList.remove('hidden');
-            }, 1500);
+                
+                // --- CEK KEMENANGAN (Jika sudah ketemu 5) ---
+                if(seekCount >= 5) {
+                    
+                    // 1. Matikan BGM Seek
+                    const bgm = document.getElementById('bgm-seek');
+                    if(bgm) {
+                        bgm.pause();
+                        bgm.currentTime = 0; // Reset ke awal
+                    }
+
+                    // 2. Mainkan Suara Menang
+                    const winSound = document.getElementById('sfx-win');
+                    if(winSound) {
+                        winSound.currentTime = 0;
+                        winSound.play().catch(e => console.log("Gagal play win:", e));
+                    }
+
+                    // 3. Tampilkan Modal Menang
+                    document.getElementById('seek-win-message').classList.remove('hidden');
+                }
+            }, 1500); // Delay 1.5 detik agar user sempat baca nama benda terakhir
         }
 
         function resetSeekGame() {
-            seekCount = 0; document.getElementById('seek-count').innerText = '0';
+            // Reset Variable & Tampilan
+            seekCount = 0; 
+            document.getElementById('seek-count').innerText = '0';
             document.getElementById('seek-win-message').classList.add('hidden');
             document.querySelectorAll('.hitbox').forEach(item => { item.classList.remove('found'); });
+
+            // --- TAMBAHAN: MAINKAN BGM SEEK ---
+            const bgm = document.getElementById('bgm-seek');
+            if(bgm) {
+                bgm.volume = 0.4; // Atur volume agar tidak terlalu keras
+                bgm.currentTime = 0;
+                bgm.play().catch(e => console.log("Gagal play BGM Seek:", e));
+            }
+            
+            // Matikan suara win (jaga-jaga jika masih bunyi dari game sebelumnya)
+            const winSound = document.getElementById('sfx-win');
+            if(winSound) {
+                winSound.pause();
+                winSound.currentTime = 0;
+            }
         }
 
-       // --- GAME LOGIC 4: DUEL SHOOTER ---
+        // --- GAME LOGIC 4: DUEL SHOOTER ---
         let duelInterval, duelSpawnInterval, duelTimerInterval; 
         let p1FireInterval, p2FireInterval; 
         let p1Score = 0, p2Score = 0;
@@ -2326,6 +2780,20 @@
             clearInterval(duelTimerInterval);
             duelTimerInterval = setInterval(handleDuelTimer, 1000); 
             startAutoFireP1(); startAutoFireP2();
+
+            // --- TAMBAHAN AUDIO START ---
+            const bgmShooter = document.getElementById('bgm-shooter');
+            const winShooter = document.getElementById('sfx-win-shooter');
+            
+            // Matikan suara win jika masih bunyi
+            if(winShooter) { winShooter.pause(); winShooter.currentTime = 0; }
+
+            // Nyalakan BGM Shooter
+            if(bgmShooter) {
+                bgmShooter.currentTime = 0;
+                bgmShooter.volume = 0.4;
+                bgmShooter.play().catch(e => console.log("BGM Shooter Error:", e));
+            }
         }
 
         function handleDuelTimer() {
@@ -2354,6 +2822,23 @@
 
             if (reason === 'score-limit') winText.innerHTML = winner + "<br><span style='font-size:3rem'>Mencapai 100 Poin!</span>";
             else winText.innerHTML = winner + "<br><span style='font-size:3rem'>Waktu Habis!</span>";
+
+            // --- TAMBAHAN AUDIO END (WINNER) ---
+            const bgmShooter = document.getElementById('bgm-shooter');
+            const winShooter = document.getElementById('sfx-win-shooter');
+
+            // 1. Matikan BGM
+            if(bgmShooter) {
+                bgmShooter.pause();
+                bgmShooter.currentTime = 0;
+            }
+
+            // 2. Mainkan Suara Win
+            if(winShooter) {
+                winShooter.currentTime = 0;
+                winShooter.volume = 1.0; 
+                winShooter.play().catch(e => console.log("Win Shooter Error:", e));
+            }
         }
 
         function startAutoFireP1() { clearInterval(p1FireInterval); p1FireInterval = setInterval(() => { if (isDuelRunning && !p1Frozen) createBullet('p1'); }, 400); }
@@ -2367,10 +2852,7 @@
             gameArea.addEventListener('touchstart', duelHandlers.move, { passive: false });
             gameArea.addEventListener('touchmove', duelHandlers.move, { passive: false });
             gameArea.addEventListener('mousemove', (e) => {
-                // Gunakan fungsi baru untuk mendeteksi posisi X di dalam game
                 const gameX = getGameX(e.clientX);
-                
-                // 1920 / 2 = 960 (Titik tengah layar game)
                 if (gameX < 960) moveP1(gameX); else moveP2(gameX);
             });
         }
@@ -2382,32 +2864,22 @@
             if (!isDuelRunning) return;
             let touches = e.touches; 
             for (let i = 0; i < touches.length; i++) {
-                const gameX = getGameX(touches[i].clientX); // Pakai fungsi baru
+                const gameX = getGameX(touches[i].clientX);
                 if (gameX < 960) moveP1(gameX); else moveP2(gameX);
             }
         }
         function moveP1(gameX) {
             if (p1Frozen) return; 
-            
-            // Hitung persentase dari 1920, bukan window.innerWidth
             let percent = (gameX / 1920) * 100; 
-            
-            // Batas area Pemain 1 (5% sampai 45%)
             percent = Math.max(5, Math.min(45, percent)); 
-            
             p1Pos = percent; 
             document.getElementById('cannon-p1').style.left = percent + '%';
         }
 
         function moveP2(gameX) {
             if (p2Frozen) return;
-            
-            // Hitung persentase dari 1920
             let percent = (gameX / 1920) * 100; 
-            
-            // Batas area Pemain 2 (55% sampai 95%)
             percent = Math.max(55, Math.min(95, percent)); 
-            
             p2Pos = percent; 
             document.getElementById('cannon-p2').style.left = percent + '%';
         }
@@ -2463,14 +2935,11 @@
             const item = document.createElement('img');
             item.className = 'duel-item';
             
-            // ... (Kode pemilihan gambar 'type' biarkan sama) ...
             const type = Math.random() > 0.5 ? 'beraturan' : 'tak-beraturan';
             item.dataset.type = type;
             if (type === 'beraturan') { const imgs = ['assets/persegi.png', 'assets/segitiga.png', 'assets/lingkaran.png', 'assets/jamdinding.png']; item.src = imgs[Math.floor(Math.random() * imgs.length)]; } 
             else { const imgs = ['assets/pohon.png', 'assets/sepatu.png', 'assets/awan.png', 'assets/daun.png']; item.src = imgs[Math.floor(Math.random() * imgs.length)]; }
             
-            // PERBAIKAN DI SINI:
-            // 1. Posisi awal (posX) gunakan range 1920
             let posX = Math.random() * (1920 - 100); 
             let posY = -100; 
             let speedX = (Math.random() - 0.5) * 6; 
@@ -2483,15 +2952,12 @@
                 if(!isDuelRunning) { clearInterval(moveInt); item.remove(); return; }
                 posX += speedX; posY += speedY;
                 
-                // PERBAIKAN PANTULAN (Invisible Wall):
-                // Gunakan angka 1920 (lebar canvas), bukan window.innerWidth
-                // Angka 80 adalah estimasi lebar item agar tidak keluar garis
                 if (posX <= 0 || posX >= 1920 - 80) {
                     speedX *= -1; 
                 }
 
                 item.style.left = posX + 'px'; item.style.top = posY + 'px';
-                if (posY > 1080) { item.remove(); clearInterval(moveInt); } // Gunakan 1080 (tinggi canvas)
+                if (posY > 1080) { item.remove(); clearInterval(moveInt); } 
             }, 20);
         }
 
